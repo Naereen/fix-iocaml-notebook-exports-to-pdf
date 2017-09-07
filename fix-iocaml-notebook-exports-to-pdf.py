@@ -35,7 +35,7 @@ def is_stderr_used(outputs):
 def transform_data_texthtml(data_texthtml):
     data_texthtml[0] = data_texthtml[0][2:]
     for i in range(len(data_texthtml)):
-        data_texthtml[i] = data_texthtml[i].replace('&gt;','>').replace('&lt;','<')
+        data_texthtml[i] = data_texthtml[i].replace('&gt;','>').replace('&lt;','<').replace('&quot;','\'')
     return data_texthtml
 
 
