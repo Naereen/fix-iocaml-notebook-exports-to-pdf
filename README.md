@@ -1,21 +1,21 @@
 # How to convert to PDF IOCaml notebooks
 
-## Explanation
+## Explanation :sunglasses:
 - I use the [unofficial IOCaml kernel](https://github.com/andrewray/iocaml/wiki/) for my teaching activities, to use the awesome [Jupyter notebooks](https://jupyter.org/) with the [OCaml language](https://ocaml.org/),
 - I like to write solutions to my practical sessions in a notebook, so it can be nicely viewed online.
 
-## Issue
-- But by default the PDF generation was not perfect: the `stdout` output was kept fine, but the type indications were removed from the output of the PDF. See for instance, [this HTML notebook](http://perso.crans.org/besson/publis/notebooks/agreg/Sudoku.html) and [this PDF notebook](http://perso.crans.org/besson/publis/notebooks/agreg/Sudoku.pdf) to see what was missing.
-- And without the type indications, the solution is not complete and not understandable.
+## Issue :boom: !
+- But by default the PDF generation was not perfect: the `stdout` output was kept fine, but the type annotations were removed from the output of the PDF. See for instance, [this HTML notebook](http://perso.crans.org/besson/publis/notebooks/agreg/Sudoku.html) and [this PDF notebook](http://perso.crans.org/besson/publis/notebooks/agreg/Sudoku.pdf) to see what was missing.
+- And without the type annotations, the solution is not complete and not understandable.
 
-## Solution
-- I wrote [this small Python script](fix-iocaml-notebook-exports-to-pdf.py) to pre-process a `.ipynb` notebook file *before* calling `jupyter-nbconvert --to pdf`, and keep the type indications.
+## Solution :rocket: !
+- I wrote [this small Python script](fix-iocaml-notebook-exports-to-pdf.py) to pre-process a `.ipynb` notebook file *before* calling `jupyter-nbconvert --to pdf`, and keep the type annotations.
 - Now, instead of using this Bash alias to do `j2pdf My_OCaml_notebook.ipynb`:
 
 ```bash
 alias j2pdf='jupyter-nbconvert --to pdf'
 ```
-- I use this Bash function the same way:
+- [I use this Bash function the same way](https://bitbucket.org/lbesson/bin/src/master/.bash_aliases#.bash_aliases-214):
 ```bash
 function j2pdf() {
   for old in "$@"; do
@@ -36,15 +36,27 @@ function j2pdf() {
 
 - It tries to fix the notebook, and convert either the new one to PDF or the old one.
 
-> Note: I also use this Bash function:
+> Note: [I also use this Bash function](https://bitbucket.org/lbesson/bin/src/master/.bash_aliases#.bash_aliases-214):
+>
+>  ```bash
+>  function j2html() {
+>    for old in "$@"; do
+>      jupyter-nbconvert --to html "$old"
+>    done
+>  }
+>  ```
 
+----
+
+## Test
+With [this Makefile](Makefile), run the tests with:
 ```bash
-function j2html() {
-  for old in "$@"; do
-    jupyter-nbconvert --to html "$old"
-  done
-}
+make -B test
 ```
+
+- It runs the script on two example notebooks, one using the IOCaml kernel, one using another kernel (Python 3),
+- It converts them to PDF and to HTML, and open the results,
+- You should check manually that the PDF of the [`test_input_ocaml.ipynb`](test_input_ocaml.ipynb) notebook has both `stdout` output and type annotations.
 
 ----
 
