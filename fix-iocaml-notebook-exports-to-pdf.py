@@ -83,7 +83,7 @@ def main(old, new, debug=False):
     # Check before changing the file
     nbformat.validate(content)
     # Backup the input file by moving it to $input.ipynb~
-    shutil.copy(filename, filename.replace('.ipynb', '.ipynb~'))
+    # shutil.copy(filename, filename.replace('.ipynb', '.ipynb~'))
     # Now write the JSON to the input file $input.ipynb
     # FIXME write as a nicely formatted string!
     with open(new, 'w') as file:
