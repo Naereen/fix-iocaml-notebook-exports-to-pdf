@@ -11,6 +11,7 @@ About:
 - *Date:* 07/09/2017.
 - *Author:* Lilian Besson, (C) 2017
 - *Licence:* MIT Licence (http://lbesson.mit-license.org).
+- *Web*: https://github.com/Naereen/fix-iocaml-notebook-exports-to-pdf
 """
 
 import sys
