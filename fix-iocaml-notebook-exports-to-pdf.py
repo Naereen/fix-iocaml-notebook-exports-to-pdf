@@ -35,6 +35,7 @@ def is_stderr_used(outputs):
 def transform_data_texthtml(data_texthtml):
     data_texthtml[0] = data_texthtml[0][2:]
     for i in range(len(data_texthtml)):
+        # Hack to replace a few HTML escaped caracters
         data_texthtml[i] = data_texthtml[i].replace('&gt;','>').replace('&lt;','<').replace('&quot;','\'')
     return data_texthtml
 
@@ -54,39 +55,42 @@ def get_data_texthtml(outputs):
 
 def main(old, new, debug=False):
     filename = old
-    assert filename[-6:] == '.ipynb'
+    assert filename[-6:] == '.ipynb', "Error: the input file is not a .ipynb Jupyter Notebook file."
     with open(filename, 'r') as file:
         content = json.load(file)
     # Check that it is a IOCaml notebook
-    assert content['metadata']['kernelspec']['name'] == "iocaml-kernel"
-    assert content['metadata']['kernelspec']['language'] == "ocaml"
-    assert content['metadata']['kernelspec']['display_name'] == "OCaml"
+    assert content['metadata']['kernelspec']['name'] == "iocaml-kernel" and content['metadata']['kernelspec']['language'] == "ocaml" and content['metadata']['kernelspec']['display_name'] == "OCaml", "Error: the input notebook does not appear to have been produced by the IOCaml OCaml kernel."
     # For each cell
     for cell in content['cells']:
         if cell['cell_type'] == "code":
             outputs = cell['outputs']
-            if not is_stderr_used(outputs):
-                data_texthtml = get_data_texthtml(outputs)
-                execution_count = cell['execution_count']
-                new_stderr_output = {
-                    "name": "stderr",
-                    "output_type": "stream",
-                    "text": data_texthtml,
-                    # "execution_count": execution_count,
-                    # "metadata": {}
-                }
-                if debug: pprint(new_stderr_output)
-                cell['outputs'].append(new_stderr_output)
-                for output in outputs:
-                    if 'data' in output:
-                        output['data']['text'] = data_texthtml
-                        if debug: pprint(output['data'])
+            # execution_count = cell['execution_count']
+            # No need
+            # if is_stderr_used(outputs):
+            #     break
+            data_texthtml = get_data_texthtml(outputs)
+            # new_stderr_output = {
+            #     "name": "stderr",
+            #     "output_type": "stream",
+            #     "text": data_texthtml,
+            #     # "execution_count": execution_count,
+            #     # "metadata": {}
+            # }
+            # if debug: pprint(new_stderr_output)
+            # cell['outputs'].append(new_stderr_output)
+            for output in outputs:
+                if 'data' in output:
+                    output['data']['text/plain'] = data_texthtml
+                    if debug: pprint(output['data'])
+                    break  # do not add twice the same output cell
+
     # Check before changing the file
-    nbformat.validate(content)
+    nbformat.validate(content)  # raise an Error if not valid notebook
+
     # Backup the input file by moving it to $input.ipynb~
     # shutil.copy(filename, filename.replace('.ipynb', '.ipynb~'))
+
     # Now write the JSON to the input file $input.ipynb
-    # FIXME write as a nicely formatted string!
     with open(new, 'w') as file:
         json.dump(content, file, indent=2)
     print("New notebook written to", new)
